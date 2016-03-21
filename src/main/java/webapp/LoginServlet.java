@@ -3,6 +3,7 @@ package webapp;
 import java.io.IOException;
 import java.io.PrintWriter;
 
+import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -32,10 +33,19 @@ import javax.servlet.http.HttpServletResponse;
 @SuppressWarnings("serial")
 @WebServlet(urlPatterns = "/login.do")
 public class LoginServlet extends HttpServlet {
-
-	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-		PrintWriter out = response.getWriter();
+		try {
+//			request.setAttribute("name", request.getParameter("name"));
+//			request.setAttribute("password", request.getParameter("password"));
+
+//			String name = request.getParameter("name");
+//			request.setAttribute("name", name);
+			request.getRequestDispatcher("/WEB-INF/views/login.jsp").forward(request, response);
+		} catch (ServletException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+/*		PrintWriter out = response.getWriter();
 		out.println("<html>");
 		out.println("<head>");
 		out.println("<title>Yahoo!!!!!!!!</title>");
@@ -44,7 +54,28 @@ public class LoginServlet extends HttpServlet {
 		out.println("My First Servlet");
 		out.println("</body>");
 		out.println("</html>");
-
+*/
 	}
 
+	private UserValidationService service = new UserValidationService();
+
+	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		try {
+			String name = request.getParameter("name");
+			String password = request.getParameter("password");
+			
+			boolean isUserValid = service.isUserValid(name, password);
+			
+			if (isUserValid){
+				request.setAttribute("name", name);
+				request.setAttribute("password", password);
+				request.getRequestDispatcher("/WEB-INF/views/welcome.jsp").forward(request, response);
+			} else {
+				request.setAttribute("errorMessage", "Invalid Credentials!");
+				request.getRequestDispatcher("/WEB-INF/views/login.jsp").forward(request, response);
+			}
+		} catch (ServletException e) {
+			e.printStackTrace();
+		}
+	}
 }
